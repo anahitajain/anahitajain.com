@@ -1,0 +1,186 @@
+<center>
+
+<b>
+<!-- use font for changing font -->
+<font size="24">
+<u style="color: violet">F</u><u style="color: blue">a</u><u style="color: violet">s</u><u style="color: blue">t</u> 
+</font>
+<font size="24" style="color: violet"><u>S</u></font>
+<font size="24" style="color: blue"><u>k</u></font>
+<font size="24" style="color: violet"><u>e</u></font>
+<font size="24" style="color: blue"><u>t</u></font>
+<font size="24" style="color: violet"><u>c</u></font>
+<font size="24" style="color: blue"><u>h</u></font>
+</b>
+
+<br>A game that shows your drawing skills in a short time!
+
+<br><button id="clickButton" style="color: darkgreen">-------- Click me!-------</button>
+<div id="readTheInput"></div>
+
+<body onload="init()">
+
+<canvas id="can" width="400" height="400" style="position:absolute;top:10%;left:5%;border:2px solid;"></canvas>
+        <div style="position:absolute;top:46%;left:43%;">Choose Color</div>
+        <div style="position:absolute;top:50%;left:45%;width:50px;height:50px;background:green;" id="green" onclick="color(this)"></div>
+        <div style="position:absolute;top:50%;left:46%;width:50px;height:50px;background:blue;" id="blue" onclick="color(this)"></div>
+        <div style="position:absolute;top:50%;left:47%;width:50px;height:50px;background:red;" id="red" onclick="color(this)"></div>
+        <div style="position:absolute;top:52%;left:45%;width:50px;height:50px;background:yellow;" id="yellow" onclick="color(this)"></div>
+        <div style="position:absolute;top:52%;left:46%;width:50px;height:50px;background:orange;" id="orange" onclick="color(this)"></div>
+        <div style="position:absolute;top:52%;left:47%;width:50px;height:50px;background:black;" id="black" onclick="color(this)"></div>
+        <div style="position:absolute;top:58%;left:40%;">Eraser</div>
+        <div style="position:absolute;top:60%;left:45%;width:15px;height:15px;background:white;border:2px solid;" id="white" onclick="color(this)"></div>
+        <img id="canvasimg" style="position:absolute;top:10%;left:52%;" style="display:none;">
+        <input type="button" value="save" id="btn" size="30" onclick="save()" style="position:absolute;top:55%;left:10%;">
+        <input type="button" value="clear" id="clr" size="23" onclick="erase()" style="position:absolute;top:55%;left:15%;">
+    </body>
+    <div id="Timer"></div>
+
+<script>
+    var timeLeft = 30;
+var elem = document.getElementById('Timer');
+
+var timerId = setInterval(countdown, 1000);
+
+function countdown() {
+  if (timeLeft == 0) {
+    clearTimeout(timerId);
+    doSomething();
+  } else {
+    elem.innerHTML = timeLeft + ' seconds remaining';
+    timeLeft--;
+  }
+}
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    var array = ["house", "ball", "bat", "tent", "pants", "shoe", "sword", "dog", "banana"];
+    
+    
+    document.getElementById("clickButton").addEventListener("click", () =>{
+       var randInt = getRandomInt(0, array.length - 1); 
+        // console.log("randint: ", randInt)
+        var item = array[randInt];
+        document.getElementById("readTheInput").innerText = item;     
+    });
+
+    var canvas, ctx, flag = false,
+        prevX = 0,
+        currX = 0,
+        prevY = 0,
+        currY = 0,
+        dot_flag = false;
+
+    var x = "black",
+        y = 2;
+    
+    function init() {
+        canvas = document.getElementById('can');
+        ctx = canvas.getContext("2d");
+        w = canvas.width;
+        h = canvas.height;
+    
+        canvas.addEventListener("mousemove", function (e) {
+            findxy('move', e)
+        }, false);
+        canvas.addEventListener("mousedown", function (e) {
+            findxy('down', e)
+        }, false);
+        canvas.addEventListener("mouseup", function (e) {
+            findxy('up', e)
+        }, false);
+        canvas.addEventListener("mouseout", function (e) {
+            findxy('out', e)
+        }, false);
+    }
+    
+    function color(obj) {
+        switch (obj.id) {
+            case "green":
+                x = "green";
+                break;
+            case "blue":
+                x = "blue";
+                break;
+            case "red":
+                x = "red";
+                break;
+            case "yellow":
+                x = "yellow";
+                break;
+            case "orange":
+                x = "orange";
+                break;
+            case "black":
+                x = "black";
+                break;
+            case "white":
+                x = "white";
+                break;
+        }
+        if (x == "white") y = 14;
+        else y = 2;
+    
+    }
+    
+    function draw() {
+        ctx.beginPath();
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(currX, currY);
+        ctx.strokeStyle = x;
+        ctx.lineWidth = y;
+        ctx.stroke();
+        ctx.closePath();
+    }
+    
+    function erase() {
+        var m = confirm("Want to clear");
+        if (m) {
+            ctx.clearRect(0, 0, w, h);
+            document.getElementById("canvasimg").style.display = "none";
+        }
+    }
+    
+    function save() {
+        document.getElementById("canvasimg").style.border = "2px solid";
+        var dataURL = canvas.toDataURL();
+        document.getElementById("canvasimg").src = dataURL;
+        document.getElementById("canvasimg").style.display = "inline";
+    }
+    
+    function findxy(res, e) {
+        if (res == 'down') {
+            prevX = currX;
+            prevY = currY;
+            currX = e.clientX - canvas.offsetLeft;
+            currY = e.clientY - canvas.offsetTop;
+    
+            flag = true;
+            dot_flag = true;
+            if (dot_flag) {
+                ctx.beginPath();
+                ctx.fillStyle = x;
+                ctx.fillRect(currX, currY, 2, 2);
+                ctx.closePath();
+                dot_flag = false;
+            }
+        }
+        if (res == 'up' || res == "out") {
+            flag = false;
+        }
+        if (res == 'move') {
+            if (flag) {
+                prevX = currX;
+                prevY = currY;
+                currX = e.clientX - canvas.offsetLeft;
+                currY = e.clientY - canvas.offsetTop;
+                draw();
+            }
+        }
+    }
+
+
+ </script>
+ </center>
